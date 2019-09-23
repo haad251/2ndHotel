@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<typeAliases>
+	<typeAlias type="com.system.mhotel.dto.Member" alias="Member"/>
+	<typeAlias type="com.system.mhotel.dto.Hotel" alias="Hotel"/>
+	<typeAlias type="com.system.mhotel.dto.Room" alias="Room"/>
+	<typeAlias type="com.system.mhotel.dto.FileVO" alias="FileVO"/>
+	<typeAlias type="com.system.mhotel.dto.Booking" alias="Booking"/>
+	<typeAlias type="com.system.mhotel.dto.Review" alias="Review"/>
+	<typeAlias type="com.system.mhotel.dto.Chat" alias="Chat"/>
+	
+</typeAliases>
+<mappers>
+	<mapper resource="Mapper/MemberMapper.xml"/>
+	<mapper resource="Mapper/RoomMapper.xml"/>
+	
+</mappers>
+</configuration>

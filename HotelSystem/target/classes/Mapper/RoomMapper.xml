@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.system.mhotel.repository.RoomMapper">
+
+	<insert id="insertHotel" parameterType="Hotel">
+		INSERT INTO HT_hotel(ht_id,mb_id,ht_name,ht_info,ht_addr,ht_loc_1,ht_loc_2,ht_loc_x,ht_loc_y,ht_meal,ht_park)
+		VALUES(
+			#{ht_id},
+			#{mb_id},
+			#{ht_name},	
+			#{ht_info},
+			#{ht_addr},
+			#{ht_loc_1},
+			#{ht_loc_2},
+			#{ht_loc_x},
+			#{ht_loc_y},
+			#{ht_meal},
+			#{ht_park}
+		)
+	</insert>
+
+	<select id="selectHotel" parameterType="Hotel" resultType="HashMap">
+		SELECT *
+		FROM ht_hotel
+		WHERE ht_id=#{ht_id}
+	</select>
+	
+	<select id="selectHotelRate" parameterType="Hotel" resultType="String">
+		SELECT ROUND(AVG(rv_rate),0)
+		FROM ht_review
+		WHERE ht_id=#{ht_id}
+	</select>
+	
+	<select id="selectHotelByMbid" parameterType="String" resultType="Hotel">
+		SELECT *
+		FROM ht_hotel
+		WHERE mb_id=#{mb_id}
+	</select>
+
+	<select id="selectAllHotel" resultType="HashMap">
+		SELECT ht_id,ht_name,file_sav
+		FROM ht_hotel natural join ht_file
+		WHERE ht_file.file_type='main'
+	</select>
+
+	<select id="searchHotel" parameterType="HashMap" resultType="HashMap">
+		SELECT DISTINCT h.ht_id, h.ht_name, f.file_sav
+		FROM ht_hotel h, ht_file f, ht_room r
+		WHERE h.ht_id = f.ht_id AND h.ht_id = r.ht_id AND f.file_type='main'
+		<if test="bk_cnt!=null and bk_cnt != '' ">
+		AND r.rm_cnt>=#{bk_cnt}
+		</if>
+		<if test="ht_meal!=null">
+		AND h.ht_meal='1'
+		</if>
+		<if test="ht_park!=null">
+		AND h.ht_park='1'
+		</if>
+		<if test="keyword!=null and keyword != '' ">
+		AND 
+		(h.ht_addr LIKE '%'||#{keyword}||'%' OR h.ht_name LIKE '%'||#{keyword}||'%')
+		</if>
+	</select>
+
+	<delete id="deleteHotel" parameterType="Hotel">
+		DELETE 
+		FROM HT_HOTEL
+		WHERE ht_id=#{ht_id}
+	</delete>
+	
+	
+	<update id="updateHotel" parameterType="Hotel">
+		UPDATE HT_HOTEL
+		SET ht_name=#{ht_name},
+			ht_info=#{ht_info},
+			ht_addr=#{ht_addr},
+			ht_loc_1=#{ht_loc_1},
+			ht_loc_2=#{ht_loc_2},
+			ht_loc_x=#{ht_loc_x},
+			ht_loc_y=#{ht_loc_y},
+			ht_meal=#{ht_meal},
+			ht_park=#{ht_park}
+		WHERE ht_id=#{ht_id}
+	</update>
+	
+	
+	
+	<update id="updateRoom" parameterType="Room">
+		UPDATE HT_ROOM
+		SET rm_name=#{rm_name},
+			rm_cnt=#{rm_cnt},
+			rm_price=#{rm_price},
+			rm_bed=#{rm_bed}
+		WHERE rm_id=#{rm_id}
+	</update>
+
+	<insert id="insertRoom" parameterType="Room">
+		INSERT INTO HT_Room(rm_id,ht_id,rm_name,rm_cnt,rm_price,rm_bed)
+		VALUES(
+			rm_seq.nextval,
+			#{ht_id},
+			#{rm_name},
+			#{rm_cnt},
+			#{rm_price},
+			#{rm_bed}
+		)
+	</insert>
+	
+	<select id="selectRoom" parameterType="Room" resultType="Room">
+		SELECT * 
+		FROM ht_room
+		WHERE rm_id=#{rm_id}
+	</select>
+
+	<select id="selectAllRoom" parameterType="Hotel" resultType="HashMap">
+		SELECT * 
+		FROM ht_room
+		WHERE ht_id=#{ht_id}
+	</select>
+
+	<delete id="deleteRoom" parameterType="Room">
+		DELETE 
+		FROM HT_ROOM
+		WHERE rm_id=#{rm_id}
+	</delete>
+	
+<!-- 	<update id="updateRoom" parameterType="Room"> -->
+<!-- 		UPDATE HT_Room -->
+<!-- 		SET rm_pw=#{mb_pw}, -->
+<!-- 			rm_name=#{mb_name}, -->
+<!-- 			mb_email=#{mb_email} -->
+<!-- 		WHERE mb_id=#{mb_id} -->
+<!-- 	</update> -->
+	
+
+	<insert id="insertBooking" parameterType="Booking">
+		INSERT INTO HT_booking(bk_id,rm_id,mb_id,bk_checkin,bk_checkout,bk_cnt,bk_price)
+		VALUES(
+			bk_id_seq.nextval,
+			#{rm_id},
+			#{mb_id},
+			#{bk_checkin},
+			#{bk_checkout},
+			#{bk_cnt},
+			#{bk_price}
+		)
+	</insert>
+	
+	<select id="selectBooking" parameterType="Booking" resultType="Booking">
+		SELECT * 
+		FROM ht_booking
+		WHERE bk_id=#{bk_id}
+	</select>
+	
+	<select id="selectAllBooking" parameterType="String" resultType="HashMap">
+		SELECT b.bk_id, h.ht_name, h.ht_id, r.rm_name, b.bk_price,TO_CHAR(b.bk_checkin,'yy-MM-dd') BK_CHECKIN, TO_CHAR(b.bk_checkout,'yy-MM-dd') BK_CHECKOUT, b.bk_status
+		FROM ht_booking b, ht_hotel h, ht_room r
+		WHERE b.rm_id = r.rm_id
+        AND r.ht_id = h.ht_id
+        AND b.mb_id=#{mb_id}
+	</select>
+	
+	<select id="selectAllBookingByHotel" parameterType="Hotel" resultType="HashMap">
+		SELECT b.bk_id, r.rm_name, b.bk_price,TO_CHAR(b.bk_checkin,'yy-MM-dd') BK_CHECKIN, TO_CHAR(b.bk_checkout,'yy-MM-dd') BK_CHECKOUT, b.bk_status, b.mb_id
+		FROM ht_booking b, ht_hotel h, ht_room r
+		WHERE b.rm_id = r.rm_id
+        AND r.ht_id = h.ht_id
+        AND h.ht_id = #{ht_id}
+	</select>
+	
+
+	<delete id="deleteBooking" parameterType="Booking">
+		DELETE 
+		FROM HT_booking
+		WHERE bk_id=#{bk_id}
+	</delete> 
+	
+	
+	
+	
+	<insert id="insertFile" parameterType="FileVO">
+		INSERT INTO ht_file(file_id,ht_id,file_org,file_sav,file_type)
+		VALUES(
+			ht_file_seq.nextval,
+			#{ht_id},
+			#{file_org},
+			#{file_sav},
+			#{file_type}
+		)
+	</insert>
+	
+	<select id="selectAllFile" parameterType="Hotel" resultType="HashMap" >
+			SELECT * 
+			FROM ht_file
+			WHERE ht_id=#{ht_id}
+	</select>
+	
+	
+	<select id="selectDate" parameterType="Room" resultType="HashMap" >
+		SELECT TO_CHAR(bk_checkin,'yyyy-fmMM-dd') bk_checkin, TO_CHAR(bk_checkout,'yyyy-fmMM-dd') bk_checkout
+		FROM ht_booking
+		WHERE rm_id=${rm_id}
+	</select>
+	
+	<insert id="insertReview" parameterType="Review">
+		INSERT INTO ht_review(rv_id, mb_id, bk_id, ht_id, rv_content, rv_indate, rv_rate)
+		VALUES(
+			rv_id_seq.nextval,
+			#{mb_id},
+			#{bk_id},
+			#{ht_id},
+			#{rv_content},
+			sysdate,
+			#{rv_rate}
+		)
+	</insert>
+	
+	<select id="selectAllReview" parameterType="Hotel" resultType="HashMap">
+		SELECT *
+		FROM ht_review
+		WHERE ht_id=#{ht_id}
+		ORDER BY rv_indate desc
+	</select>
+	
+	<insert id="insertChat" parameterType="Chat">
+		INSERT INTO ht_chat(ch_id, mb_id, ht_id, ch_indate, ch_message,ch_send)
+		VALUES(
+			ch_id_seq.nextval,
+			#{mb_id},
+			#{ht_id},
+			sysdate,
+			#{ch_message},
+			#{ch_send}
+		)
+	</insert>
+	
+	<select id="selectAllChat" parameterType="Chat" resultType="HashMap">
+		SELECT *
+		FROM ht_chat
+		WHERE ht_id=#{ht_id}
+		AND mb_id=#{mb_id}
+		ORDER BY ch_indate
+	</select>
+	
+	<select id="selectAllChatByHotel" parameterType="Hotel" resultType="HashMap">
+	 	SELECT distinct mb_id
+		FROM ht_chat
+		WHERE ht_id=#{ht_id}
+	</select>
+	
+	<update id="switchBooking">
+		UPDATE HT_BOOKING
+		SET bk_status='USED'	
+		WHERE bk_id=#{bk_id}
+	</update>
+	
+	
+</mapper>

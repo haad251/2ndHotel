@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 게시판 처리 SQL -->
+<mapper namespace="com.system.mhotel.repository.MemberMapper">
+
+	<insert id="insertMember" parameterType="Member">
+		INSERT INTO HT_MEMBER (mb_id,mb_pwd,mb_email,mb_status)
+		VALUES(
+			#{mb_id},
+			#{mb_pwd},
+			#{mb_email},
+			'guest'
+		)
+	</insert>
+	
+	<select id="selectMember" parameterType="Member" resultType="Member">
+		SELECT * 
+		FROM HT_MEMBER
+		WHERE mb_id=#{mb_id} AND mb_pwd=#{mb_pwd}
+	</select>
+	
+	<select id="selectMemberInfo" parameterType="Member" resultType="Member">
+		SELECT * 
+		FROM HT_MEMBER
+		WHERE mb_id=#{mb_id}
+	</select>
+	
+	
+
+	<delete id="deleteMember" parameterType="Member">
+		DELETE 
+		FROM HT_MEMBER
+		WHERE mb_id=#{mb_id}
+	</delete>
+	
+	<update id="updateMember" parameterType="Member">
+		UPDATE HT_MEMBER
+		SET mb_pwd=#{mb_pwd},
+			mb_email=#{mb_email}
+		WHERE mb_id=#{mb_id}
+	</update>
+	
+	<update id="updateMemberHost" parameterType="String">
+		UPDATE HT_MEMBER
+		SET mb_status='host'
+		WHERE mb_id=#{mb_id}
+	</update>
+	
+</mapper>
